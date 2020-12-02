@@ -1,0 +1,207 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block titlepage %}{{ title }}{% endblock titlepage %}
+{% block title %}{{ title }}{% endblock title %}
+
+{% block navlink %}{% include 'navlink.html' %}{% endblock navlink %}
+
+{% block navbar %}
+{% include 'navbar.html' %}
+    <li class="nav-item">
+    <a href="{% url 'pacientes' %}" class="nav-link">Pacientes</a>
+    </li>
+    <li class="nav-item">
+    <a href="{% url 'turnos' %}" class="nav-link">Turnos</a>
+    </li>
+{% endblock navbar %}
+
+
+{% block head_link %}
+  <!-- DataTables -->
+  <link rel="stylesheet" href="{% static 'adminlte/plugins/datatables-bs4/css/dataTables.bootstrap4.min.css' %}">
+  <link rel="stylesheet" href="{% static 'adminlte/plugins/datatables-responsive/css/responsive.bootstrap4.min.css' %}">
+  <!-- Ionicons -->
+  <link rel="stylesheet" href="https://code.ionicframework.com/ionicons/2.0.1/css/ionicons.min.css">
+  <style>
+    ul.detail li{
+        margin: 0.5em;
+        list-style: none;
+    }
+    div.button{
+        margin-left: 2.6em;
+    }
+    div.button button{
+        width: 7em;
+        margin: 0.4em;
+    }
+  </style>
+{% endblock head_link %}
+
+{% block footer_js %}
+<!-- DataTables -->
+<script src="{% static 'adminlte/plugins/datatables/jquery.dataTables.min.js' %}"></script>
+<script src="{% static 'adminlte/plugins/datatables-bs4/js/dataTables.bootstrap4.min.js' %}"></script>
+<script src="{% static 'adminlte/plugins/datatables-responsive/js/dataTables.responsive.min.js' %}"></script>
+<script src="{% static 'adminlte/plugins/datatables-responsive/js/responsive.bootstrap4.min.js' %}"></script>
+<!-- AdminLTE for demo purposes -->
+<script src="{% static 'adminlte/js/demo.js' %}"></script>
+<!-- page script -->
+<script>
+  $(function () {
+    $("#table1").DataTable({
+        "responsive": true,
+        "autoWidth": false,
+        "info": true,
+        "searching": true,
+        "ordering": true,
+        "paging": true,
+        "lengthChange": true,
+        "language": {
+            "lengthMenu": "Ver _MENU_ registros por pagina",
+            "zeroRecords": "No se encontro el registro",
+            "info": "Pagina _PAGE_ de _PAGES_",
+            "infoEmpty": "No hay registros disponibles",
+            "infoFiltered": "(filtrado de _MAX_ registros totales)",
+            "search": "Buscar",
+            "loadingRecords": "Cargando...",
+            "processing":     "Procesando...",
+            "paginate": {
+                "first":      "Primera",
+                "last":       "Ultima",
+                "next":       "Siguiente",
+                "previous":   "Anterior"
+            },
+        },
+    });
+    $("#table2").DataTable({
+        "responsive": true,
+        "autoWidth": false,
+        "info": true,
+        "searching": true,
+        "ordering": true,
+        "paging": true,
+        "lengthChange": true,
+        "language": {
+            "lengthMenu": "Ver _MENU_ registros por pagina",
+            "zeroRecords": "No se encontro el registro",
+            "info": "Pagina _PAGE_ de _PAGES_",
+            "infoEmpty": "No hay registros disponibles",
+            "infoFiltered": "(filtrado de _MAX_ registros totales)",
+            "search": "Buscar",
+            "loadingRecords": "Cargando...",
+            "processing":     "Procesando...",
+            "paginate": {
+                "first":      "Primera",
+                "last":       "Ultima",
+                "next":       "Siguiente",
+                "previous":   "Anterior"
+            },
+        },
+    });
+  });
+</script>
+{% endblock footer_js %}
+
+
+
+{% block content %}
+        <div class="row">
+          <div class="col-lg-12">
+            <div class='card'>
+                <div class="card-header">
+                    <h3 class="card-title">Datos</h3>
+                </div>
+                <div class='card-body'>
+                    <ul class='detail'>
+                        <li><b>Apellido y Nombre:</b> {{paciente.apellido.upper}}, {{paciente.nombre}}</li>
+                        <li><b>DNI:</b> {{paciente.dni}}</li>
+                        <li><b>Teléfono:</b> {{paciente.telefono}}</li>
+                        <li><b>Médico:</b> {{paciente.medico.last_name}}, {{paciente.medico.first_name}}</li>
+                    </ul>
+                    {% if request.user.rol.rol == 'secretaria' %}
+                    <div class="button">
+                        <a href="{% url 'turnos_add' paciente.id %}"><button class='btn btn-success'>Crear Turno</button></a>
+                        <a href="{% url 'paciente_edit' paciente.id %}"><button class='btn btn-primary'>Editar</button></a>
+                        <a href="{% url 'paciente_del' paciente.id %}" onclick="if(!confirm('Está seguro que quiere borrar a : {{paciente.apellido.upper}}, {{paciente.nombre}}')) return false;"><button class='btn btn-danger'>Eliminar</button></a>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+            {% comment %} Turnos {% endcomment %}
+            {% comment %} {% if request.user == paciente.medico %} {% endcomment %}
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">Turnos</h3>
+                </div>
+                <!-- /.card-header -->
+                <div class="card-body">
+                    <table id="table1" class="table table-bordered table-striped">
+                        <thead>
+                        <tr>
+                        <th>Fecha</th>
+                        <th>Médico</th>
+                        <th>Asistencia</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+
+                        {% for turno in turnos %}
+                        
+                        <tr> 
+                            <td><a style='color: black;' href="{% url 'turnos_edit' paciente.id turno.id %}">{{turno.date}}</a></td>
+                            <td>{{turno.medico.last_name}}, {{turno.medico.first_name}}</td>
+                            <td>{% if turno.asistencia == 'asistio' %}Asistió{% endif %}{% if turno.asistencia == 'no_asistio' %}No Asistió{% endif %}</td>
+                        
+                        </tr>
+                        {% endfor %}
+
+                        </tbody>
+                    </table>
+                </div>
+              <!-- /.card-body -->
+            </div>
+            {% comment %} {% endif %} {% endcomment %}
+
+            {% comment %} Historial medico {% endcomment %}
+            {% if request.user == paciente.medico %}
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">Historial Médico</h3>
+                    <div style="float: right;"><a href="{% url 'historial_medico_add' paciente.id %}" style="color: white;" class='btn btn-primary'>Agregar</a></div>
+                </div>
+                <!-- /.card-header -->
+                <div class="card-body">
+                    <table id="table2" class="table table-bordered table-striped">
+                        <thead>
+                        <tr>
+                        <th>Fecha</th>
+                        <th>Medico</th>
+                        <th>Asunto</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+
+                        {% for historial in historial_medico %}
+                        
+                        <tr> 
+                            <td><a style='color: black;' href="{% url 'historial_medico_detail' paciente.id historial.id %}">{{historial.creation}}</a></td>
+                            <td>{{historial.medico.last_name}}, {{historial.medico.first_name}}</td>
+                            <td>{{historial.asunto}}</td>
+                        </tr>
+                        {% endfor %}
+
+                        </tbody>
+                    </table>
+                </div>
+              <!-- /.card-body -->
+            </div>
+            {% endif %}
+
+          </div>
+        </div>
+
+
+
+        
+
+{% endblock content %} 

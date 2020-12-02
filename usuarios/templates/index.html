@@ -1,0 +1,79 @@
+{% extends 'base.html' %}
+{% block titlepage %}{{ title }}{% endblock titlepage %}
+{% block title %}{{ title }}{% endblock title %}
+{% block navlink %}{% include 'navlink.html' %}{% endblock navlink %}
+{% block navbar %}{% endblock navbar %}
+
+{% block content %}
+        
+        <div class="row">
+
+          {% comment %} Pacientes {% endcomment %}
+          {% if request.user.rol.rol == 'secretaria' or request.user.rol.rol == 'profecional_medico' or request.user.rol.rol == 'gerencia' %}
+          <div class="col-lg-2">
+            <div class="card card-outline btn">
+              <a style="color: black" href="{% url 'pacientes' %}">
+              <div class="card-body text-center">
+                  <i class="fas fa-user-injured fa-5x"></i>
+                <p class="card-text"><b>Pacientes</b></p>
+              </div>
+            </a>
+            </div><!-- /.card -->
+          </div>
+          {% endif %}
+          {% comment %} Turnos {% endcomment %}
+          {% if request.user.rol.rol == 'secretaria' or request.user.rol.rol == 'profecional_medico' or request.user.rol.rol == 'gerencia' %}
+          <div class="col-lg-2">
+            <div class="card card-outline btn">
+              <a style="color: black" href="{% url 'turnos' %}">
+              <div class="card-body text-center">
+                  <i class="fas fa-calendar-alt fa-5x"></i>
+                <p class="card-text"><b>Turnos</b></p>
+              </div>
+            </a>
+            </div><!-- /.card -->
+          </div>
+          {% endif %}
+          {% comment %} Productos {% endcomment %}
+          {% if request.user.rol.rol == 'ventas' or request.user.rol.rol == 'gerencia' %}
+          <div class="col-lg-2">
+            <div class="card card-outline btn">
+              <a style="color: black" href="{% url 'productos' %}">
+              <div class="card-body text-center">
+                  <i class="fas fa-box fa-5x"></i>
+                <p class="card-text"><b>Productos</b></p>
+              </div>
+            </a>
+            </div><!-- /.card -->
+          </div>
+          {% endif %}
+          {% comment %} Pedidos {% endcomment %}
+          {% if request.user.rol.rol == 'ventas' or request.user.rol.rol == 'taller' or request.user.rol.rol == 'gerencia' %}
+          <div class="col-lg-2">
+            <div class="card card-outline btn">
+              <a style="color: black" href="{% url 'pedidos' %}">
+              <div class="card-body text-center">
+                  <i class="fas fa-clipboard-list fa-5x"></i>
+                <p class="card-text"><b>Pedidos</b></p>
+              </div>
+            </a>
+            </div><!-- /.card -->
+          </div>
+          {% endif %}
+          {% comment %} Reportes {% endcomment %}
+          {% if request.user.rol.rol == 'gerencia' %}
+          <div class="col-lg-2">
+            <div class="card card-outline btn">
+              <a style="color: black" href="{% url 'reportes' %}">
+              <div class="card-body text-center">
+                  <i class="fas fa-book fa-5x"></i>
+                <p class="card-text"><b>Reportes</b></p>
+              </div>
+            </a>
+            </div><!-- /.card -->
+          </div>
+          {% endif %}
+
+        </div>
+
+{% endblock content %} 

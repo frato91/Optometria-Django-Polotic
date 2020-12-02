@@ -1,0 +1,30 @@
+Administrador
+Usuario: admin
+Contraseña: admin
+
+#### Secretaría ####
+Usuario: monica
+Contraseña: pass123456
+
+##### Medicos #####
+Usuario: aberto
+Contraseña: pass123456
+
+Usuario: victoria
+Contraseña: pass123456
+
+#### Ventas #####
+Usuario: victor
+Contraseña: pass123456
+
+Usuario: maria
+Contraseña: pass123456
+
+#### Taller #####
+Usuario: pablo
+Contraseña: pass123456
+
+#### Gerente #####
+Usuario: roberto
+Contraseña: pass123456
+

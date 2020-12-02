@@ -1,0 +1,47 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block titlepage %}{{ title }}{% endblock titlepage %}
+{% block title %}{{ title }}{% endblock title %}
+{% block navlink %}{% include 'navlink.html' %}{% endblock navlink %}
+{% block navbar %}{% include 'navbar.html' %}
+    <li class="nav-item">
+    <a href="{% url 'pacientes' %}" class="nav-link">Pacientes</a>
+    </li>
+    <li class="nav-item">
+    <a href="{% url 'pacientes' %}" class="nav-link">Turnos</a>
+    </li>
+{% endblock navbar %}
+
+{% block head_link %}
+    <style>
+        ul.form li{
+            margin: 0.5em;
+            margin-left: 10%;
+            padding: 0.2em;
+            list-style: none;
+        }
+        ul.form li label{
+            width: 4.5em;
+        }
+  </style>
+{% endblock head_link %}
+
+{% block content %}
+    <div class="row justify-content-center">
+        <div class="col-lg-5 align-self-center">
+            <div class='card'>
+                <div class='card-header'>Nuevo Paciente</div>
+                <div class='card-body'>
+                    <form method="POST">
+                        {% csrf_token %}
+                        <ul class='form'>
+                        {{form.as_ul}}
+                        </ul>
+                        <input class="btn btn-primary" style="display: block; margin : 0 auto;" type="submit" value="Agregar">
+                    </form>
+                </div>    
+            </div>
+
+        </div>
+    </div>
+{% endblock content %} 

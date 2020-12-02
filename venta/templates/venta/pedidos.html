@@ -1,0 +1,146 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block titlepage %}{{ title }}{% endblock titlepage %}
+{% block title %}{{ title }}{% endblock title %}
+
+{% block head_link %}
+  <!-- DataTables -->
+  <link rel="stylesheet" href="{% static 'adminlte/plugins/datatables-bs4/css/dataTables.bootstrap4.min.css' %}">
+  <link rel="stylesheet" href="{% static 'adminlte/plugins/datatables-responsive/css/responsive.bootstrap4.min.css' %}">
+  <!-- Ionicons -->
+  <link rel="stylesheet" href="https://code.ionicframework.com/ionicons/2.0.1/css/ionicons.min.css">
+{% endblock head_link %}
+
+{% block footer_js %}
+<!-- DataTables -->
+<script src="{% static 'adminlte/plugins/datatables/jquery.dataTables.min.js' %}"></script>
+<script src="{% static 'adminlte/plugins/datatables-bs4/js/dataTables.bootstrap4.min.js' %}"></script>
+<script src="{% static 'adminlte/plugins/datatables-responsive/js/dataTables.responsive.min.js' %}"></script>
+<script src="{% static 'adminlte/plugins/datatables-responsive/js/responsive.bootstrap4.min.js' %}"></script>
+<!-- AdminLTE for demo purposes -->
+<script src="{% static 'adminlte/js/demo.js' %}"></script>
+<!-- page script -->
+<script>
+  $(function () {
+    $("#table1").DataTable({
+        "responsive": true,
+        "autoWidth": false,
+        "info": true,
+        "searching": true,
+        "ordering": true,
+        "paging": true,
+        "lengthChange": true,
+        "language": {
+            "lengthMenu": "Ver _MENU_ registros por pagina",
+            "zeroRecords": "No se encontro el registro",
+            "info": "Pagina _PAGE_ de _PAGES_",
+            "infoEmpty": "No hay registros disponibles",
+            "infoFiltered": "(filtrado de _MAX_ registros totales)",
+            "search": "Buscar",
+            "loadingRecords": "Cargando...",
+            "processing":     "Procesando...",
+            "paginate": {
+                "first":      "Primera",
+                "last":       "Ultima",
+                "next":       "Siguiente",
+                "previous":   "Anterior"
+            },
+        },
+    });
+  });
+</script>
+{% endblock footer_js %}
+
+
+{% block navlink %}
+{% include 'navlink.html' %}
+{% endblock navlink %}
+
+{% block navbar %}
+{% include 'navbar.html' %}
+  {% if request.user.rol.rol != 'taller' %}
+    {% if request.user.rol.rol == 'gerencia' %}
+      <li class="nav-item">
+        <a href="{% url 'pacientes' %}" class="nav-link">Pacientes</a>
+      </li>
+      <li class="nav-item">
+        <a href="{% url 'turnos' %}" class="nav-link">Turnos</a>
+      </li>
+    {% endif %}
+    <li class="nav-item">
+      <a href="{% url 'productos' %}" class="nav-link">Productos</a>
+    </li>
+    {% if request.user.rol.rol == 'gerencia' %}
+      <li class="nav-item">
+        <a href="{% url 'reportes' %}" class="nav-link">Reportes</a>
+      </li>
+    {% endif %}
+  {% endif %}
+{% endblock navbar %}
+
+{% block content %}
+        <div class="row">
+          <div class="col-lg-12">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">Listado de Pedidos</h3>
+                    {% if request.user.rol.rol == 'ventas' %}
+                    <div style="float: right;"><a href="{% url 'pedido_add' %}" style="color: white;" class='btn btn-primary'>Agregar</a></div>
+                    {% endif %}
+                </div>
+                <!-- /.card-header -->
+                <div class="card-body">
+                    <table id="table1" class="table table-bordered table-striped">
+                        <thead>
+                        <tr>
+                          <th>Nro de Pedido</th>
+                          <th>Cliente</th>
+                          <th>Vendedor</th>
+                          <th>Cantidad de Articulos</th>
+                          <th>Estado</th>
+                          {% if request.user.rol.rol != 'taller' %}
+                            <th>Tipo de Pago</th>
+                            <th>Total</th>
+                          {% endif %}
+                        </tr>
+                        </thead>
+                        <tbody>
+
+                        {% for pedido in pedidos %}
+                        
+                        <tr> 
+                            <td><a style='color: black;' href="{% url 'pedido_edit' pedido.id %}">{{pedido.id}}</a></td>
+                            <td>{{pedido.paciente}}</td>
+                            <td>{{pedido.vendedor.last_name}}, {{pedido.vendedor.first_name}}</td>
+                            <td>{{pedido.cantidad}}</td>
+                            <td>{{pedido.estado.title}}</td>
+                            {% if request.user.rol.rol != 'taller' %}
+                            <td>{{pedido.pago}}</td>
+                            <td>$ {{pedido.precio}}</td>
+                            {% endif %}
+                        </tr>
+                        {% endfor %}
+
+                        </tbody>
+                        <tfoot>
+                        <tr>
+                          <th>Nro de Pedido</th>
+                          <th>Cliente</th>
+                          <th>Vendedor</th>
+                          <th>Cantidad de Articulos</th>
+                          <th>Estado</th>
+                          {% if request.user.rol.rol != 'taller' %}
+                            <th>Tipo de Pago</th>
+                            <th>Total</th>
+                          {% endif %}
+                        </tr>
+                        </tfoot>
+                    </table>
+                </div>
+              <!-- /.card-body -->
+            </div>
+
+          </div>
+        </div>
+
+{% endblock content %} 

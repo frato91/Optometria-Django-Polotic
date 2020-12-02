@@ -1,0 +1,202 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block titlepage %}{{ title }}{% endblock titlepage %}
+{% block title %}{{ title }}{% endblock title %}
+{% block navlink %}{% include 'navlink.html' %}{% endblock navlink %}
+{% block navbar %}{% include 'navbar.html' %}
+    {% if request.user.rol.rol != 'taller' %}
+    <li class="nav-item">
+    <a href="{% url 'productos' %}" class="nav-link">Productos</a>
+    </li>
+    {% endif %}
+    <li class="nav-item">
+    <a href="{% url 'pedidos' %}" class="nav-link">Pedidos</a>
+    </li>
+{% endblock navbar %}
+
+{% block head_link %}
+ <!-- DataTables -->
+  <link rel="stylesheet" href="{% static 'adminlte/plugins/datatables-bs4/css/dataTables.bootstrap4.min.css' %}">
+  <link rel="stylesheet" href="{% static 'adminlte/plugins/datatables-responsive/css/responsive.bootstrap4.min.css' %}">
+  <!-- Ionicons -->
+  <link rel="stylesheet" href="https://code.ionicframework.com/ionicons/2.0.1/css/ionicons.min.css">
+    <style>
+        ul.form li{
+            margin: 0.5em;
+            margin-left: 4%;
+            padding: 0.2em;
+            list-style: none;
+        }
+        ul.form li label{
+            width: 8em;
+        }
+  </style>
+{% endblock head_link %}
+
+{% block footer_js %}
+<!-- DataTables -->
+<script src="{% static 'adminlte/plugins/datatables/jquery.dataTables.min.js' %}"></script>
+<script src="{% static 'adminlte/plugins/datatables-bs4/js/dataTables.bootstrap4.min.js' %}"></script>
+<script src="{% static 'adminlte/plugins/datatables-responsive/js/dataTables.responsive.min.js' %}"></script>
+<script src="{% static 'adminlte/plugins/datatables-responsive/js/responsive.bootstrap4.min.js' %}"></script>
+<!-- AdminLTE for demo purposes -->
+<script src="{% static 'adminlte/js/demo.js' %}"></script>
+<!-- page script -->
+<script>
+  $(function () {
+    $("#table1").DataTable({
+        "responsive": true,
+        "autoWidth": false,
+        "info": true,
+        "searching": true,
+        "ordering": true,
+        "paging": true,
+        "lengthChange": true,
+        "language": {
+            "lengthMenu": "Ver _MENU_ registros por pagina",
+            "zeroRecords": "No se encontro el registro",
+            "info": "Pagina _PAGE_ de _PAGES_",
+            "infoEmpty": "No hay registros disponibles",
+            "infoFiltered": "(filtrado de _MAX_ registros totales)",
+            "search": "Buscar",
+            "loadingRecords": "Cargando...",
+            "processing":     "Procesando...",
+            "paginate": {
+                "first":      "Primera",
+                "last":       "Ultima",
+                "next":       "Siguiente",
+                "previous":   "Anterior"
+            },
+        },
+    });
+  });
+</script>
+</script>
+{% endblock footer_js %}
+
+{% block content %}
+    <div class="row justify-content-center">
+        <div class="col-lg-8 align-self-center">
+            <div class='card'>
+                <div class='card-header'>Pedido</div>
+                <div class='card-body'>
+                    <form method="POST">
+                        {% csrf_token %}
+                        <ul class='form'>
+                            <li>
+                                {% if edit != 1 %}
+                                    <label>Estado:</label>
+                                    Pendiente
+                                {% else %}
+                                    {% if request.user.rol.rol == 'gerencia' or request.user.rol.rol == 'ventas' and form_estado.estado.value == 'finalizado' %}
+                                    <label>Estado:</label>
+                                    {{form_estado.estado.value.title}}
+                                    {% else %}
+                                    {{form_estado}}
+                                    {% endif %}
+                                {% endif %}
+                            </li>
+                            <li>
+                                <label>Vendedor:</label>
+                                {{request.user.last_name.upper}}, {{request.user.first_name}}
+                            </li>
+                            {% if edit != 1 %}
+                            {{form.as_ul}}
+                            {% else %}
+                            <li>
+                                <label>Cliente:</label>{{pedido.paciente}}
+                            </li>
+                            {% if request.user.rol.rol != 'taller' %}
+                            <li>
+                                <label>Pago:</label>
+                                {% if request.user.rol.rol == 'gerencia' or request.user.rol.rol == 'ventas' and form_estado.estado.value == 'finalizado'%}
+                                    {{form.pago.value}}
+                                {% else %}
+                                    {{form.pago}}
+                                {% endif %}     
+                                
+                            </li>
+                            <li>
+                                <label>Total:</label>
+                                ${{pedido.precio}}
+                            </li>
+                            {% endif %}
+                            {% endif %}
+                        </ul>
+                        
+                        <div style='text-align: center;'>
+                            {% if edit != 1 %}
+                            <div  style="display: inline-block;"><input class="btn btn-primary" type="submit" value="Crear Pedido"></div>
+                            {% endif %}
+                            {% if edit == 1 %}
+                            {% if request.user.rol.rol == 'taller' or request.user.rol.rol == 'ventas' and form_estado.estado.value != 'finalizado' %}
+                            <div  style="display: inline-block;"><input class="btn btn-primary"  type="submit" value="Guardar"></div>
+                            {% endif %}
+                            {% if request.user.rol.rol == 'ventas' and form_estado.estado.value != 'finalizado' %}
+                            <div  style="display: inline-block;"><a class="btn btn-danger" href="{% url 'pedido_del' pedido.id %}" onclick="if(!confirm('Está seguro que quiere borrar el pedido?')) return false;">Borrar</a></div>
+                            {% endif %}
+                            <div  style="display: inline-block;"><a class="btn btn-success" href="{% url 'pedidos' %}">Volver</a></div>
+                            {% endif %}
+                        </div>
+                    </form>
+                </div>    
+            </div>
+            {% if edit == 1 %}
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">Carro de compra</h3>
+                    {% if request.user.rol.rol == 'ventas' and form_estado.estado.value != 'finalizado' %}
+                    <div style="float: right;"><a href="{% url 'item_add' pedido.id %}" style="color: white;" class='btn btn-primary'>Agregar</a></div>
+                    {% endif %}
+                </div>
+                <!-- /.card-header -->
+                <div class="card-body">
+                    <table id="table1" class="table table-bordered table-striped">
+                        <thead>
+                        <tr>
+                          <th>Nombre</th>
+                          <th>Cantidad</th>
+                          {% if request.user.rol.rol != 'taller' %}
+                          <th>Precio</th>
+                          <th>Subtotal</th>
+                          {% endif %}
+                          {% if request.user.rol.rol == 'ventas' and form_estado.estado.value != 'finalizado' %}
+                          <th></th>
+                          {% endif %}
+                        </tr>
+                        </thead>
+                        <tbody>
+
+                        {% for item in lista %}
+                        
+                        <tr> 
+                            {% if item.producto.lente == True %}
+                                {% if item.producto.armazon == True %}
+                                <td>{{item.producto.nombre}} | {{item.producto.distancia.title}} | {{item.producto.lado.title}} | Con Armazón</td>
+                                {% else %}
+                                <td>{{item.producto.nombre}} | {{item.producto.distancia.title}} | {{item.producto.lado.title}} | Sin Armazón</td>
+                                {% endif %}
+                            {% else %}
+                                <td>{{item.producto.nombre}}</td>
+                            {% endif %}
+
+                            <td>{{item.cantidad}}</td>
+                            {% if request.user.rol.rol != 'taller' %}
+                            <td>{{item.producto.precio}}</td>
+                            <td>{{item.subtotal}}</td>
+                            {% endif %}
+                            {% if request.user.rol.rol == 'ventas'  and form_estado.estado.value != 'finalizado'%}
+                            <td><a href="{% url 'item_del' pedido.id item.id %}"><i style="color: red;" class="fas fa-trash"></i></a></td>
+                            {% endif %}
+                        </tr>
+                        {% endfor %}
+
+                        </tbody>
+                    </table>
+                </div>
+              <!-- /.card-body -->
+            </div>
+            {% endif %}
+        </div>
+    </div>
+{% endblock content %} 

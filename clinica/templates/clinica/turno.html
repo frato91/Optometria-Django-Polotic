@@ -1,0 +1,128 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block titlepage %}{{ title }}{% endblock titlepage %}
+{% block title %}{{ title }}{% endblock title %}
+
+{% block head_link %}
+  <!-- DataTables -->
+  <link rel="stylesheet" href="{% static 'adminlte/plugins/datatables-bs4/css/dataTables.bootstrap4.min.css' %}">
+  <link rel="stylesheet" href="{% static 'adminlte/plugins/datatables-responsive/css/responsive.bootstrap4.min.css' %}">
+  <!-- Ionicons -->
+  <link rel="stylesheet" href="https://code.ionicframework.com/ionicons/2.0.1/css/ionicons.min.css">
+{% endblock head_link %}
+
+{% block footer_js %}
+<!-- DataTables -->
+<script src="{% static 'adminlte/plugins/datatables/jquery.dataTables.min.js' %}"></script>
+<script src="{% static 'adminlte/plugins/datatables-bs4/js/dataTables.bootstrap4.min.js' %}"></script>
+<script src="{% static 'adminlte/plugins/datatables-responsive/js/dataTables.responsive.min.js' %}"></script>
+<script src="{% static 'adminlte/plugins/datatables-responsive/js/responsive.bootstrap4.min.js' %}"></script>
+<!-- AdminLTE for demo purposes -->
+<script src="{% static 'adminlte/js/demo.js' %}"></script>
+<!-- page script -->
+<script>
+  $(function () {
+    $("#table1").DataTable({
+        "responsive": true,
+        "autoWidth": false,
+        "info": true,
+        "searching": true,
+        "ordering": true,
+        "paging": true,
+        "lengthChange": true,
+        "language": {
+            "lengthMenu": "Ver _MENU_ registros por pagina",
+            "zeroRecords": "No se encontro el registro",
+            "info": "Pagina _PAGE_ de _PAGES_",
+            "infoEmpty": "No hay registros disponibles",
+            "infoFiltered": "(filtrado de _MAX_ registros totales)",
+            "search": "Buscar",
+            "loadingRecords": "Cargando...",
+            "processing":     "Procesando...",
+            "paginate": {
+                "first":      "Primera",
+                "last":       "Ultima",
+                "next":       "Siguiente",
+                "previous":   "Anterior"
+            },
+        },
+    });
+  });
+</script>
+{% endblock footer_js %}
+
+
+{% block navlink %}
+{% include 'navlink.html' %}
+{% endblock navlink %}
+
+{% block navbar %}
+{% include 'navbar.html' %}
+    <li class="nav-item">
+      <a href="{% url 'pacientes' %}" class="nav-link">Pacientes</a>
+    </li>
+    {% if request.user.rol.rol == 'gerencia' %}
+      <li class="nav-item">
+        <a href="{% url 'productos' %}" class="nav-link">Productos</a>
+      </li>
+      <li class="nav-item">
+        <a href="{% url 'pedidos' %}" class="nav-link">Pedidos</a>
+      </li>
+      <li class="nav-item">
+        <a href="{% url 'reportes' %}" class="nav-link">Reportes</a>
+      </li>
+    {% endif %}
+{% endblock navbar %}
+
+{% block content %}
+        <div class="row">
+          <div class="col-lg-12">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">Turnos</h3>
+                </div>
+                <!-- /.card-header -->
+                <div class="card-body">
+                    <table id="table1" class="table table-bordered table-striped">
+                        <thead>
+                        <tr>
+                          <th>Turno</th>
+                          <th>Médico</th>
+                          <th>Paciente</th>
+                          <th>Asistencia</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+
+                        {% for turno in turnos %}
+                        
+                        <tr> 
+                            <td><a style='color: black;' href='{% url 'turnos_edit' turno.paciente.id turno.id %}'>{{turno.date}}</a></td>
+                            <td>{{turno.medico.last_name}}, {{turno.medico.first_name}}</td>
+                            <td>{{turno.paciente.apellido.upper}}, {{turno.paciente.nombre}}</td>
+                            <td>{% if turno.asistencia == 'asistio' %}Asistió{% endif %}{% if turno.asistencia == 'no_asistio' %}No Asistió{% endif %}</td>
+                        </tr>
+                        {% endfor %}
+
+                        </tbody>
+                        <tfoot>
+                        <tr>
+                          <th>Turno</th>
+                          <th>Médico</th>
+                          <th>Paciente</th>
+                          <th>Asistencia</th>
+                        </tr>
+                        </tfoot>
+                    </table>
+                </div>
+              <!-- /.card-body -->
+        </div>
+
+          </div>
+        </div>
+
+
+
+        
+
+{% endblock content %} 
